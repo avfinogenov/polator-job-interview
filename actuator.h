@@ -5,15 +5,32 @@
 
 
 
-template <typename TokenT>
 class Actuator : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit Actuator(QObject *parent = nullptr);
+    explicit Actuator(QObject *parent = nullptr) : QObject(parent)
+    {
+
+    }
+
+
+};
+
+
+template <typename TokenT>
+class ActuatorF : public Actuator
+{
+
+public:
+    explicit ActuatorF()
+    {
+
+    }
 
     void write(TokenT token);
-signals:
+//signals:
 
 
 

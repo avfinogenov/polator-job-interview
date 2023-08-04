@@ -8,13 +8,33 @@
 // возможно QObject тут не нужен
 // хотя можно кидать сигнал, и ловить его стейт машиной
 
-
-template <typename BackendT, typename R2ConnectionParamsT, typename GEOT>
 class Backend : public QObject
 {
-    Q_OBJECT
+Q_OBJECT
+
 public:
-    explicit Backend(QObject *parent = nullptr);
+
+    explicit Backend(QObject *parent = nullptr) : QObject(parent)
+    {
+
+    }
+
+
+};
+
+
+
+
+template <typename BackendT, typename R2ConnectionParamsT,
+          typename GEOT>
+class BackendF : public Backend
+{
+
+public:
+    explicit BackendF() : Backend(nullptr)
+    {
+
+    }
     void generateParamsToSend();
     std::list<R2ConnectionParamsT> getParamsToSend(GEOT geo)
     {
@@ -36,7 +56,7 @@ public:
 
 
 
-signals:
+//signals:
 
 
 

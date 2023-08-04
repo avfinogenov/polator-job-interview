@@ -3,19 +3,32 @@
 
 #include <QObject>
 
-
-
-template <typename TokenT>
 class Sensor : public QObject
 {
     Q_OBJECT
 public:
-    explicit Sensor(QObject *parent = nullptr);
+
+    explicit Sensor(QObject *parent = nullptr) : QObject(parent)
+    {
+
+    }
+
+};
+
+template <typename TokenT>
+class SensorF : public Sensor
+{
+
+public:
+    explicit SensorF()
+    {
+
+    }
 
 
     TokenT read();
 
-signals:
+//signals:
 
 
 

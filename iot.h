@@ -10,16 +10,32 @@
 #include "sensor.h"
 #include "actuator.h"
 
-template <typename BackendT, typename R2ConnectionParamsT,
-          typename GEOT, typename TokenT>
 class IOT : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit IOT(R2ConnectionParamsT myR2Info,
-                 Backend<BackendT, R2ConnectionParamsT, GEOT>* backend,
-                 QObject *parent = nullptr): QObject(parent), m_radio1(backend),
-                 m_radio2(myR2Info), m_sensor(), m_actuator()
+
+    explicit IOT(QObject *parent = nullptr): QObject(parent)
+    {
+
+    };
+
+};
+
+
+
+template <typename BackendT, typename R2ConnectionParamsT,
+          typename GEOT, typename TokenT>
+class IOTF : public IOT
+{
+
+public:
+    explicit IOTF(Radio2ChannelF<R2ConnectionParamsT, TokenT>* channel,
+                 R2ConnectionParamsT myR2Info, BackendT backendConnectionParams,
+                 BackendF<BackendT, R2ConnectionParamsT, GEOT>* backend):
+                 m_radio1(backend, backendConnectionParams),
+                 m_radio2(channel, myR2Info), m_sensor(), m_actuator()
     {
 
     };
@@ -32,10 +48,10 @@ public:
     void process();
 
 
-    Radio1<BackendT, R2ConnectionParamsT, GEOT> m_radio1;
-    Radio2<TokenT, R2ConnectionParamsT> m_radio2;
+    Radio1F<BackendT, R2ConnectionParamsT, GEOT> m_radio1;
+    Radio2F<TokenT, R2ConnectionParamsT> m_radio2;
 
-signals:
+//signals:
 
 
 
@@ -52,17 +68,14 @@ private:
     QState talkingToBackend;
     QState WorkingWithSensor;
     QFinalState errorState;
-    Sensor<TokenT> m_sensor;
-    Actuator<TokenT> m_actuator;
+    SensorF<TokenT> m_sensor;
+    ActuatorF<TokenT> m_actuator;
 
 
 };
 
 
-//IOT::IOT(QObject *parent) : QObject(parent)
-//{
 
-//}
 
 
 #endif // IOT_H
