@@ -1,6 +1,6 @@
 #include "iot.h"
 
-IOT::IOT()
+IOT::IOT(QObject *parent) : QObject(parent)
 {
 
 }

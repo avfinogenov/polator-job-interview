@@ -14,22 +14,25 @@ CONFIG += c++11 console
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    actuator.cpp \
+    button.cpp \
     iot.cpp \
     main.cpp \
-    myqsm.cpp \
-    mystate.cpp \
     mystatemachine.cpp \
-    test1.cpp \
-    test2.cpp
+    radio1.cpp \
+    radio2.cpp \
+    sensor.cpp
+
 
 HEADERS += \
+    actuator.h \
+    button.h \
     iot.h \
-    myqsm.h \
-    mystate.h \
     mystatemachine.h \
+    radio1.h \
+    radio2.h \
+    sensor.h \
     structs.h \
-    test1.h \
-    test2.h \
     todo.h
 
 FORMS +=

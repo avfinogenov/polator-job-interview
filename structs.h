@@ -2,15 +2,12 @@
 #define STRUCTS_H
 #include <list>
 
-template <typename T>
-struct GEO
-{
-    T data;
-
-};
 
 
-
+// данная структура являет собой по сути очередь на обработку
+// для актуатора. эта структура будет пополнятся автономно от сенсора на отправку
+// и от р2 для актуатора
+// возможно имя не лучшее подобрано
 template <typename ConnectionParamsT, typename Token>
 struct ConnectionParams
 {
