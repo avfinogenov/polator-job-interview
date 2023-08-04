@@ -21,18 +21,7 @@ public:
 template <typename TokenT, typename ConnectionParamsT>
 class Radio2F : public Radio2
 {
-//    // reimplemented from QObject
-//        const QMetaObject *metaObject() const;
-//        void *qt_metacast(const char *className);
-//        int qt_metacall(QMetaObject::Call call, int id,
-//                        void **arguments);
 
-//        // static members
-//        static QString tr(const char *sourceText,
-//                          const char *comment = 0);
-//        static QString trUtf8(const char *sourceText,
-//                              const char *comment = 0);
-//        static const QMetaObject staticMetaObject;
 public:
     explicit Radio2F(Radio2ChannelF<ConnectionParamsT, TokenT>* channel, ConnectionParamsT myR2Info)
     {
@@ -40,18 +29,42 @@ public:
         m_channel = channel;
     };
 
-    void process(ConnectionParams<ConnectionParamsT, TokenT> msg);
-    void propagate(ConnectionParams<ConnectionParamsT, TokenT> msg);
-    void updateNeighbours(std::list<ConnectionParamsT> neighbours);
+    void process(TokenT* token)
+    {
+        ConnectionParams<ConnectionParamsT, TokenT> msgToRead;
+        msgToRead = m_channel->readFromChannel();
+        if (msgToRead.connectionData == m_myR2Info)
+        {
+            *token = msgToRead.token;
+            m_channel->confirmReading();
+        }
+    }
+    void propagate(TokenT token)
+    {
+        ConnectionParams<ConnectionParamsT, TokenT> msgToSend;
+        msgToSend.data = token;
+        for (int i = 0; i < m_neighbours.size(); ++i)
+        {
+            msgToSend.connectionData = m_neighbours[i];
+            m_channel->sendToChannel(msgToSend);
+        }
 
-//signals:
+
+    }
+    void updateNeighbours(std::vector<ConnectionParamsT> neighbours)
+    {
+        m_neighbours = neighbours;
+    }
+
+    //signals:
 
 
 private:
 
     ConnectionParamsT m_myR2Info = ConnectionParamsT();
-    std::list<ConnectionParamsT> m_neighbours;
+    std::vector<ConnectionParamsT> m_neighbours;
     Radio2ChannelF<ConnectionParamsT, TokenT>* m_channel = nullptr;
+
 };
 
 #endif // RADIO2_H

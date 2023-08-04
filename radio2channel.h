@@ -3,6 +3,12 @@
 
 #include <QObject>
 #include "structs.h"
+/* for testing
+ *
+ *
+ *
+ *
+ */
 
 class Radio2Channel : public QObject
 {
@@ -27,12 +33,21 @@ public:
     {
 
     }
-    void input(ConnectionParams<ConnectionParamsT, TokenT> inputMsg)
+    void sendToChannel(ConnectionParams<ConnectionParamsT, TokenT> inputMsg)
     {
-
+        m_msgs.push_back(inputMsg);
     }
 
-//signals:
+    ConnectionParams<ConnectionParamsT, TokenT> readFromChannel()
+    {
+        return m_msgs.front();
+    }
+    void confirmReading()
+    {
+        m_msgs.pop_front();
+    }
+
+    //signals:
 
 
 

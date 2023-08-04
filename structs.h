@@ -1,6 +1,6 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
-#include <list>
+#include <vector>
 
 
 
@@ -8,11 +8,11 @@
 // для актуатора. эта структура будет пополнятся автономно от сенсора на отправку
 // и от р2 для актуатора
 // возможно имя не лучшее подобрано
-template <typename ConnectionParamsT, typename Token>
+template <typename ConnectionParamsT, typename TokenT>
 struct ConnectionParams
 {
-    ConnectionParamsT data = ConnectionParamsT();
-    std::list<Token> tokens;
+    ConnectionParamsT connectionData = ConnectionParamsT();
+    TokenT token;
 };
 
 
