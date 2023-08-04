@@ -9,16 +9,30 @@
 // хотя можно кидать сигнал, и ловить его стейт машиной
 
 
-template <typename BackendT, typename R2ConnectionParamsT>
+template <typename BackendT, typename R2ConnectionParamsT, typename GEOT>
 class Backend : public QObject
 {
     Q_OBJECT
 public:
     explicit Backend(QObject *parent = nullptr);
     void generateParamsToSend();
-    std::list<R2ConnectionParamsT> getParamsToSend();
-    bool connect(BackendT backendConnectionParams);
-    bool disconnect();
+    std::list<R2ConnectionParamsT> getParamsToSend(GEOT geo)
+    {
+        // geo сейчас не используется, но может быть на основании
+        // него симуляция будет выбирать что посылать
+        m_geo = geo;
+        return m_paramsToSend;
+    }
+    // коннект и дисконнект возвращают статус соединения
+    bool connect(BackendT backendConnectionParams)
+    {
+        // вообще обычно такое принято писать понятнее, но так как внутри класса решил написать покороче
+        return (m_isConnected = !m_isConnected && backendConnectionParams == m_backendConnectionParam);
+    }
+    bool disconnect()
+    {
+        return (m_isConnected = !m_isConnected);
+    }
 
 
 
@@ -30,6 +44,7 @@ private:
     BackendT m_backendConnectionParam = BackendT();
     std::list<R2ConnectionParamsT> m_paramsToSend;
     bool m_isConnected = false;
+    GEOT m_geo;
 
 
 

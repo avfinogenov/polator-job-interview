@@ -17,7 +17,7 @@ class IOT : public QObject
     Q_OBJECT
 public:
     explicit IOT(R2ConnectionParamsT myR2Info,
-                 Backend<BackendT, R2ConnectionParamsT>* backend,
+                 Backend<BackendT, R2ConnectionParamsT, GEOT>* backend,
                  QObject *parent = nullptr): QObject(parent), m_radio1(backend),
                  m_radio2(myR2Info), m_sensor(), m_actuator()
     {
