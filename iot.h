@@ -40,14 +40,36 @@ public:
 
     };
 
-    void sync();
+    void sync()
+    {
+
+        while(!m_radio1.connect())
+        {
+           continue;
+        }
+        if (m_radio1.getConnectionStatus())
+        {
+            m_radio2.updateNeighbours(m_radio1.exchange(m_geo));
+            m_radio1.disconnect();
+        }
+
+    }
 
 
     //? выглядит как не очень эффективно и корректно
-    void propagate();
-    void process();
+    void propagate()
+    {
+        m_radio2.propagate(m_sensor.read());
 
+    }
+    void process()
+    {
+        TokenT token;
+        m_radio2.process(&token);
+        m_actuator.write(token);
+    }
 
+    //очень странно что по схеме они паблик, но да ладно
     Radio1F<BackendT, R2ConnectionParamsT, GEOT> m_radio1;
     Radio2F<TokenT, R2ConnectionParamsT> m_radio2;
 

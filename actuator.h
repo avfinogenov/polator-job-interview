@@ -2,7 +2,7 @@
 #define ACTUATOR_H
 
 #include <QObject>
-
+#include <iostream>
 
 
 class Actuator : public QObject
@@ -29,13 +29,17 @@ public:
 
     }
 
-    void write(TokenT token);
-//signals:
+    void write(TokenT token)
+    {
+        std::cout << "token writen\n";
+        m_output = token;
+    }
+
 
 
 
 private:
-    TokenT output = TokenT();
+    TokenT m_output = TokenT();
 };
 
 #endif // ACTUATOR_H

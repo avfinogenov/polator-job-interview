@@ -55,7 +55,7 @@ public:
             //todo error
         }
     }
-    std::list<R2ConnectionParamsT> exchange(GEOT geo)
+    std::vector<R2ConnectionParamsT> exchange(GEOT geo)
     {
         if (m_isConnected)
         {
@@ -64,12 +64,15 @@ public:
         else
         {
             //todo error
-            return std::list<R2ConnectionParamsT>();
+            return std::vector<R2ConnectionParamsT>();
         }
     }
 
-
-//signals:
+    bool getConnectionStatus()
+    {
+        return m_isConnected;
+    }
+    //signals:
 
 
 
