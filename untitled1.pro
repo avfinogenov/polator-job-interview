@@ -15,6 +15,7 @@ CONFIG += c++11 console
 
 SOURCES += \
     actuator.cpp \
+    backend.cpp \
     button.cpp \
     iot.cpp \
     main.cpp \
@@ -26,6 +27,7 @@ SOURCES += \
 
 HEADERS += \
     actuator.h \
+    backend.h \
     button.h \
     iot.h \
     mystatemachine.h \
