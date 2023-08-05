@@ -15,6 +15,10 @@ public:
 
     };
 
+signals:
+    void backendRoutineFinished();
+
+
 };
 
 

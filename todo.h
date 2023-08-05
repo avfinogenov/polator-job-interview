@@ -47,10 +47,13 @@
 
 
 // дип дайв ин иот
+
+// state machine stuff
 */
 //-----------------------------------------------------------------------------
 
-// state machine stuff
+// r2 signal to iot
+// sensor signal to iot
 
 
 

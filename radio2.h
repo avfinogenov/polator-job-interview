@@ -14,7 +14,8 @@ public:
 
     };
 
-
+signals:
+    void sendError();
 };
 
 
@@ -55,7 +56,10 @@ public:
     {
         m_neighbours = neighbours;
     }
-
+    bool isHaveNeighbours()
+    {
+        return !m_neighbours.empty();
+    }
     //signals:
 
 

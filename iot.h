@@ -4,11 +4,13 @@
 #include <QObject>
 #include <QStateMachine>
 #include <QFinalState>
+#include <QDebug>
 #include "structs.h"
 #include "radio1.h"
 #include "radio2.h"
 #include "sensor.h"
 #include "actuator.h"
+#include "button.h"
 
 class IOT : public QObject
 {
@@ -21,6 +23,21 @@ public:
 
     };
 
+
+
+signals:
+    void initComplete();
+    void waitForButton();
+    void workWithSensor();
+    void buttonSendInstantiate();
+
+
+public slots:
+    void gotButtonSignal()
+    {
+        emit buttonSendInstantiate();
+    }
+    void justAPlug(){};
 };
 
 
@@ -38,8 +55,44 @@ public:
                  m_radio2(channel, myR2Info), m_sensor(), m_actuator()
     {
 
-    };
 
+        m_startingInitialization.addTransition(this, SIGNAL(initComplete()), m_afterInit);
+        m_afterInit.addTransition(this, SIGNAL(waitForButton()), m_awaitingButton);
+        m_afterInit.addTransition(this, SIGNAL(workWithSensor()), m_workingWithSensor);
+        m_awaitingButton.addTransition(this, SIGNAL(buttonSendInstantiate()), m_talkingToBackend);
+        m_talkingToBackend.addTransition(&m_radio1, SIGNAL(backendRoutineFinished()), m_workingWithSensor);
+        m_workingWithSensor.addTransition(&m_radio2, SIGNAL(sendError()), m_errorState);
+        //todo
+
+        m_stateMachine.addState(&m_startingInitialization);
+        m_stateMachine.addState(&m_afterInit);
+        m_stateMachine.addState(&m_awaitingButton);
+        m_stateMachine.addState(&m_talkingToBackend);
+        m_stateMachine.addState(&m_workingWithSensor);
+        m_stateMachine.addState(&m_errorState);
+        m_stateMachine.setInitialState(&m_startingInitialization);
+
+        connect(&m_stateMachine, &QStateMachine::finished, this, &IOTF::lastAction);
+
+        connect(this, SIGNAL(initComplete()), this, &IOTF::justAPlug);
+        connect(this, SIGNAL(waitForButton()), this, &IOTF::justAPlug);
+        connect(this, SIGNAL(workWithSensor()), this, &IOTF::justAPlug);
+        connect(&m_radio1, SIGNAL(backendRoutineFinished()), this, &IOTF::justAPlug);
+        connect(&m_radio2, SIGNAL(sendError()), this, &IOTF::justAPlug);
+
+
+
+
+         m_stateMachine.start();
+         emit initComplete();
+         afterInit();
+
+    };
+    ~IOTF(){};
+    void lastAction()
+    {
+        ~IOTF();
+    }
     void sync()
     {
 
@@ -54,6 +107,47 @@ public:
         }
 
     }
+    void debugInfo()
+    {
+        connect(m_startingInitialization, &QState::entered, this, &IOTF::stateEntered);
+        connect(m_startingInitialization, &QState::exited, this, &IOTF::stateExited);
+        connect(m_startingInitialization, &QState::finished, this, &IOTF::stateFinished);
+        connect(m_afterInit, &QState::entered, this, &IOTF::stateEntered);
+        connect(m_afterInit, &QState::exited, this, &IOTF::stateExited);
+        connect(m_afterInit, &QState::finished, this, &IOTF::stateFinished);
+        connect(m_awaitingButton, &QState::entered, this, &IOTF::stateEntered);
+        connect(m_awaitingButton, &QState::exited, this, &IOTF::stateExited);
+        connect(m_awaitingButton, &QState::finished, this, &IOTF::stateFinished);
+        connect(m_talkingToBackend, &QState::entered, this, &IOTF::stateEntered);
+        connect(m_talkingToBackend, &QState::exited, this, &IOTF::stateExited);
+        connect(m_talkingToBackend, &QState::finished, this, &IOTF::stateFinished);
+        connect(m_workingWithSensor, &QState::entered, this, &IOTF::stateEntered);
+        connect(m_workingWithSensor, &QState::exited, this, &IOTF::stateExited);
+        connect(m_workingWithSensor, &QState::finished, this, &IOTF::stateFinished);
+        connect(m_errorState, &QState::entered, this, &IOTF::stateEntered);
+        connect(m_errorState, &QState::exited, this, &IOTF::stateExited);
+        connect(m_errorState, &QState::finished, this, &IOTF::stateFinished);
+    }
+
+
+    void stateEntered()
+    {
+        qInfo() << sender() << "Entered";
+
+    }
+
+    void stateExited()
+    {
+        qInfo() << sender() << "Exited";
+
+    }
+
+    void stateFinished()
+    {
+        qInfo() << sender() << "Finished";
+
+    }
+
 
 
     //? выглядит как не очень эффективно и корректно
@@ -85,14 +179,25 @@ private:
 
     QStateMachine m_stateMachine;
 
-    QState startingInitialization;
-    QState awaitingButton;
-    QState talkingToBackend;
-    QState WorkingWithSensor;
-    QFinalState errorState;
+    QState m_startingInitialization;
+    QState m_afterInit;
+    QState m_awaitingButton;
+    QState m_talkingToBackend;
+    QState m_workingWithSensor;
+    QFinalState m_errorState;
     SensorF<TokenT> m_sensor;
     ActuatorF<TokenT> m_actuator;
-
+    void afterInit()
+    {
+        if (m_radio2.isHaveNeighbours())
+        {
+            emit workWithSensor();
+        }
+        else
+        {
+            emit waitForButton();
+        }
+    }
 
 };
 
