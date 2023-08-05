@@ -29,7 +29,7 @@ public:
         m_myR2Info = myR2Info;
         m_channel = channel;
     };
-
+    ~Radio2F(){};
     void process(TokenT* token)
     {
         ConnectionParams<ConnectionParamsT, TokenT> msgToRead;

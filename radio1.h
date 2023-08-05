@@ -33,7 +33,7 @@ public:
         m_backend = backend;
         m_backendConnectionParam = backendConnectionParams;
     };
-
+    ~Radio1F(){};
     const int MAX_NEIGHBOURS = 10;
 
     // если функция будет вызвана при активном подключении - перейти в состояние ошибки

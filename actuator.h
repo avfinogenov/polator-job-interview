@@ -28,7 +28,7 @@ public:
     {
 
     }
-
+    ~ActuatorF(){};
     void write(TokenT token)
     {
         std::cout << "token writen\n";

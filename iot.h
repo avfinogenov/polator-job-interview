@@ -22,7 +22,23 @@ public:
     {
 
     };
+    void stateEntered()
+    {
+        qInfo() << sender() << "Entered";
 
+    }
+
+    void stateExited()
+    {
+        qInfo() << sender() << "Exited";
+
+    }
+
+    void stateFinished()
+    {
+        qInfo() << sender() << "Finished";
+
+    }
 
 
 signals:
@@ -38,6 +54,14 @@ public slots:
         emit buttonSendInstantiate();
     }
     void justAPlug(){};
+
+
+
+
+private:
+
+
+
 };
 
 
@@ -56,12 +80,12 @@ public:
     {
 
 
-        m_startingInitialization.addTransition(this, SIGNAL(initComplete()), m_afterInit);
-        m_afterInit.addTransition(this, SIGNAL(waitForButton()), m_awaitingButton);
-        m_afterInit.addTransition(this, SIGNAL(workWithSensor()), m_workingWithSensor);
-        m_awaitingButton.addTransition(this, SIGNAL(buttonSendInstantiate()), m_talkingToBackend);
-        m_talkingToBackend.addTransition(&m_radio1, SIGNAL(backendRoutineFinished()), m_workingWithSensor);
-        m_workingWithSensor.addTransition(&m_radio2, SIGNAL(sendError()), m_errorState);
+        m_startingInitialization.addTransition(this, SIGNAL(initComplete()), &m_afterInit);
+        m_afterInit.addTransition(this, SIGNAL(waitForButton()), &m_awaitingButton);
+        m_afterInit.addTransition(this, SIGNAL(workWithSensor()), &m_workingWithSensor);
+        m_awaitingButton.addTransition(this, SIGNAL(buttonSendInstantiate()), &m_talkingToBackend);
+        m_talkingToBackend.addTransition(&m_radio1, SIGNAL(backendRoutineFinished()), &m_workingWithSensor);
+        m_workingWithSensor.addTransition(&m_radio2, SIGNAL(sendError()), &m_errorState);
         //todo
 
         m_stateMachine.addState(&m_startingInitialization);
@@ -74,11 +98,11 @@ public:
 
         connect(&m_stateMachine, &QStateMachine::finished, this, &IOTF::lastAction);
 
-        connect(this, SIGNAL(initComplete()), this, &IOTF::justAPlug);
-        connect(this, SIGNAL(waitForButton()), this, &IOTF::justAPlug);
-        connect(this, SIGNAL(workWithSensor()), this, &IOTF::justAPlug);
-        connect(&m_radio1, SIGNAL(backendRoutineFinished()), this, &IOTF::justAPlug);
-        connect(&m_radio2, SIGNAL(sendError()), this, &IOTF::justAPlug);
+        connect(this, SIGNAL(initComplete()), this, SLOT(justAPlug()));
+        connect(this, SIGNAL(waitForButton()), this, SLOT(justAPlug()));
+        connect(this, SIGNAL(workWithSensor()), this, SLOT(justAPlug()));
+        connect(&m_radio1, SIGNAL(backendRoutineFinished()), this, SLOT(justAPlug()));
+        connect(&m_radio2, SIGNAL(sendError()), this, SLOT(justAPlug()));
 
 
 
@@ -91,7 +115,7 @@ public:
     ~IOTF(){};
     void lastAction()
     {
-        ~IOTF();
+        this->~IOTF();
     }
     void sync()
     {
@@ -130,23 +154,7 @@ public:
     }
 
 
-    void stateEntered()
-    {
-        qInfo() << sender() << "Entered";
 
-    }
-
-    void stateExited()
-    {
-        qInfo() << sender() << "Exited";
-
-    }
-
-    void stateFinished()
-    {
-        qInfo() << sender() << "Finished";
-
-    }
 
 
 
