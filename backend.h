@@ -2,7 +2,7 @@
 #define BACKEND_H
 
 #include <QObject>
-#include <list>
+#include <vector>
 // нужна функция генерации коннекшн парамсов
 // нужна функция получения коннекшн парамсов
 // возможно QObject тут не нужен
@@ -31,12 +31,15 @@ class BackendF : public Backend
 {
 
 public:
-    explicit BackendF() : Backend(nullptr)
+    explicit BackendF(BackendT backendConnectionParam) : Backend(nullptr)
     {
-
+        m_backendConnectionParam = backendConnectionParam;
     }
-    void generateParamsToSend();
-    std::list<R2ConnectionParamsT> getParamsToSend(GEOT geo)
+    void addParamsToSend(R2ConnectionParamsT param)
+    {
+        m_paramsToSend.push_back(param);
+    }
+    std::vector<R2ConnectionParamsT> getParamsToSend(GEOT geo)
     {
         // geo сейчас не используется, но может быть на основании
         // него симуляция будет выбирать что посылать
@@ -62,7 +65,7 @@ public:
 
 private:
     BackendT m_backendConnectionParam = BackendT();
-    std::list<R2ConnectionParamsT> m_paramsToSend;
+    std::vector<R2ConnectionParamsT> m_paramsToSend;
     bool m_isConnected = false;
     GEOT m_geo;
 

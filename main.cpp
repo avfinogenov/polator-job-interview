@@ -11,13 +11,16 @@
 
 
 
-void threadv(MyStateMachine* m)
+void threadv(Button* b)
 {
     char tmp;
+
     while (true)
     {
         std::cin >> tmp;
-        emit m->actionPerformed();
+
+        b->doYourThing();
+
     }
 
 }
@@ -26,13 +29,18 @@ void threadv(MyStateMachine* m)
 
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
-    MyStateMachine stateMachine, s2;
+//    MyStateMachine stateMachine, s2;
     Radio2ChannelF<int, int> r2channel;
-    BackendF<int, int, int> backend;
-    IOTF<int, int, int, int> iot(&r2channel, 1, 1, &backend);
-    QObject::connect(&stateMachine, &MyStateMachine::actionPerformed, &s2, &MyStateMachine::on_actionPerformed);
+    int x = 1;
+    Button b;
 
-    std::future<void> thread1 = std::async(std::launch::async, &threadv, &stateMachine);
+    BackendF<int, int, int> backend(x);
+    backend.addParamsToSend(x);
+    IOTF<int, int, int, int> iot(&r2channel, 0, x, &backend);
+//    QObject::connect(&stateMachine, &MyStateMachine::actionPerformed, &s2, &MyStateMachine::on_actionPerformed);
+
+    QObject::connect(&b, SIGNAL(instantiate()), &iot, SLOT(gotButtonSignal()));
+    std::future<void> thread1 = std::async(std::launch::async, &threadv, &b);
 
     return app.exec();
 }

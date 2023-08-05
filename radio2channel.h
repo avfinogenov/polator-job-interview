@@ -20,6 +20,10 @@ public:
     {
 
     }
+
+
+signals:
+    void gotNewInfo();
 };
 
 
@@ -36,6 +40,7 @@ public:
     void sendToChannel(ConnectionParams<ConnectionParamsT, TokenT> inputMsg)
     {
         m_msgs.push_back(inputMsg);
+        emit gotNewInfo();
     }
 
     ConnectionParams<ConnectionParamsT, TokenT> readFromChannel()

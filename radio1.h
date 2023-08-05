@@ -16,7 +16,7 @@ public:
     };
 
 signals:
-    void backendRoutineFinished();
+    void backendRoutineFinished(QString s);
 
 
 };
@@ -53,6 +53,8 @@ public:
         if (m_isConnected)
         {
             m_isConnected = m_backend->disconnect();
+            emit backendRoutineFinished(QString("backend routine finished"));
+
         }
         else
         {

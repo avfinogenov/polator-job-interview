@@ -4,7 +4,7 @@
 #include <QObject>
 #include <future>
 #include <random>
-
+#include <QDebug>
 
 class Sensor : public QObject
 {
@@ -16,6 +16,9 @@ public:
 
     }
 
+
+signals:
+    void gotNewToken();
 };
 
 template <typename TokenT>
@@ -38,11 +41,10 @@ public:
     }
     TokenT read()
     {
-        if (m_isTokenChanged)
-        {
-            m_isTokenChanged = false;
-            return m_token;
-        }
+
+
+        return m_token;
+
     }
 
     //signals:
@@ -61,8 +63,9 @@ private:
         {
             m_token = TokenT(rand() % 100);
 
-            m_isTokenChanged = true;
+//            qInfo() << "sensor got token\n";
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            emit gotNewToken();
         }
 
     }
