@@ -51,7 +51,7 @@ signals:
     void initComplete(QString s);
     void waitForButton(QString s);
     void workWithSensor(QString s);
-    void buttonSendInstantiate();
+    void buttonSendInstantiate(QString s);
     void radio1Error(QString s);
 
 public slots:
@@ -60,7 +60,7 @@ public slots:
 
         qInfo() << "got button signal\n";
 
-        emit buttonSendInstantiate();
+        emit buttonSendInstantiate("button send instantiate");
     }
 
 
@@ -93,7 +93,7 @@ public:
         m_startingInitialization.setObjectName("m_startingInitialization" );
         m_afterInit.addTransition(this, SIGNAL(waitForButton(QString )), &m_awaitingButton);
         m_afterInit.addTransition(this, SIGNAL(workWithSensor(QString )), &m_workingWithSensor);
-        m_awaitingButton.addTransition(this, SIGNAL(buttonSendInstantiate()), &m_talkingToBackend);
+        m_awaitingButton.addTransition(this, SIGNAL(buttonSendInstantiate(QString)), &m_talkingToBackend);
         m_talkingToBackend.addTransition(&m_radio1, SIGNAL(backendRoutineFinished(QString)), &m_workingWithSensor);
         m_talkingToBackend.addTransition(this, SIGNAL(radio1Error(QString )), &m_errorState);
         m_workingWithSensor.addTransition(&m_radio2, SIGNAL(sendError(QString)), &m_errorState);
@@ -116,7 +116,7 @@ public:
         m_stateMachine.start();
 
         connect(&m_stateMachine, &QStateMachine::finished, this, &IOTF::lastAction);
-        connect(this, &IOT::buttonSendInstantiate, this, &IOTF::sync);
+        connect(this, &IOT::buttonSendInstantiate, &m_superPlug, &SuperPlug::justAPlug);
         connect(&m_sensor, &Sensor::gotNewToken, this, &IOTF::propagate);
 //        connect(&m_sensor, SIGNAL(gotNewToken()), this, SLOT(propagate()));
 
@@ -239,7 +239,7 @@ public:
     }
     void process()
     {
-
+//        qInfo() << "process activated";
         TokenT token;
         m_radio2.process(&token);
         m_actuator.write(token);

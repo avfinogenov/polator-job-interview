@@ -2,6 +2,7 @@
 #define RADIO2CHANNEL_H
 
 #include <QObject>
+#include <QDebug>
 #include "structs.h"
 /* for testing
  *
@@ -39,6 +40,7 @@ public:
     }
     void sendToChannel(ConnectionParams<ConnectionParamsT, TokenT> inputMsg)
     {
+//        qInfo() << "channel got new data";
         m_msgs.push_back(inputMsg);
         emit gotNewInfo();
     }

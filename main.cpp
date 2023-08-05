@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 
     BackendF<int, int, int> backend(x);
     backend.addParamsToSend(x);
-    IOTF<int, int, int, int> iot(&r2channel, 0, x, &backend);
+    IOTF<int, int, int, int> iot(&r2channel, 1, x, &backend);
 //    QObject::connect(&stateMachine, &MyStateMachine::actionPerformed, &s2, &MyStateMachine::on_actionPerformed);
 
     QObject::connect(&b, SIGNAL(instantiate()), &iot, SLOT(gotButtonSignal()));
