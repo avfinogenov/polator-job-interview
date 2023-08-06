@@ -27,8 +27,8 @@ public:
 public slots:
     void justAPlug(QString s)
     {
-//        qInfo() << "plug activated\n"    ;
-//        qInfo() << s;
+        qInfo() << "plug activated\n"    ;
+        qInfo() << s;
 
     };
 };
@@ -53,6 +53,9 @@ signals:
     void workWithSensor(QString s);
     void buttonSendInstantiate(QString s);
     void radio1Error(QString s);
+    void r2ReadFinished(QString s);
+    void sensorReadFinished(QString s);
+
 
 public slots:
     void gotButtonSignal()
@@ -66,11 +69,19 @@ public slots:
 
     void on_tokenWritten()
     {
-        qDebug() << m_selfName;
-        qDebug() << "token written";
+//        qDebug() << m_selfName;
+//        qDebug() << "token written";
 
     }
 
+    void on_sensorGotToken()
+    {
+
+    }
+    void on_r2ConfirmReading()
+    {
+
+    }
 
 private:
 
@@ -97,15 +108,24 @@ public:
         m_startingInitialization.addTransition(this, SIGNAL(initComplete(QString)), &m_afterInit);
         m_startingInitialization.setObjectName("m_startingInitialization" );
         m_afterInit.addTransition(this, SIGNAL(waitForButton(QString )), &m_awaitingButton);
-        m_afterInit.addTransition(this, SIGNAL(workWithSensor(QString )), &m_workingWithSensor);
+        m_afterInit.addTransition(this, SIGNAL(workWithSensor(QString )), &m_awaitingInput);
         m_awaitingButton.addTransition(this, SIGNAL(buttonSendInstantiate(QString)), &m_talkingToBackend);
-        m_talkingToBackend.addTransition(&m_radio1, SIGNAL(backendRoutineFinished(QString)), &m_workingWithSensor);
+        m_talkingToBackend.addTransition(&m_radio1, SIGNAL(backendRoutineFinished(QString)), &m_awaitingInput);
+        m_awaitingInput.addTransition(&m_radio2, SIGNAL(confirmReading()), &m_processR2Data);
+        m_processR2Data.addTransition(this, SIGNAL(r2ReadFinished(QString)), &m_awaitingInput);
+        m_awaitingInput.addTransition(&m_sensor, SIGNAL(gotNewToken()), &m_processSensorData);
+        m_processSensorData.addTransition(this, SIGNAL(sensorReadFinished(QString)), &m_awaitingInput);
+
+
         m_talkingToBackend.addTransition(this, SIGNAL(radio1Error(QString )), &m_errorState);
-        m_workingWithSensor.addTransition(&m_radio2, SIGNAL(sendError(QString)), &m_errorState);
+//        m_workingWithSensor.addTransition(&m_radio2, SIGNAL(sendError(QString)), &m_errorState);
         m_afterInit.setObjectName("m_afterInit" );
         m_awaitingButton.setObjectName("m_awaitingButton" );
         m_talkingToBackend.setObjectName("m_talkingToBackend" );
-        m_workingWithSensor.setObjectName("m_workingWithSensor" );
+//        m_workingWithSensor.setObjectName("m_workingWithSensor" );
+        m_awaitingInput.setObjectName("m_awaitingInput" );
+        m_processSensorData.setObjectName("m_processSensorData" );
+        m_processR2Data.setObjectName("m_processR2Data" );
 
         //todo
 
@@ -113,7 +133,9 @@ public:
         m_stateMachine.addState(&m_afterInit);
         m_stateMachine.addState(&m_awaitingButton);
         m_stateMachine.addState(&m_talkingToBackend);
-        m_stateMachine.addState(&m_workingWithSensor);
+        m_stateMachine.addState(&m_awaitingInput);
+        m_stateMachine.addState(&m_processR2Data);
+        m_stateMachine.addState(&m_processSensorData);
         m_stateMachine.addState(&m_errorState);
         m_stateMachine.setInitialState(&m_startingInitialization);
         connect(&m_stateMachine, &QStateMachine::finished, this, &IOTF::stateFinished);
@@ -122,7 +144,7 @@ public:
 
         connect(&m_stateMachine, &QStateMachine::finished, this, &IOTF::lastAction);
         connect(this, &IOT::buttonSendInstantiate, &m_superPlug, &SuperPlug::justAPlug);
-        connect(&m_sensor, &Sensor::gotNewToken, this, &IOTF::propagate);
+//        connect(&m_sensor, &Sensor::gotNewToken, this, &IOTF::propagate);
 //        connect(&m_sensor, SIGNAL(gotNewToken()), this, SLOT(propagate()));
 
         connect(this, SIGNAL(initComplete(QString)), &m_superPlug, SLOT(justAPlug(QString)));
@@ -131,10 +153,15 @@ public:
         connect(this, SIGNAL(workWithSensor(QString)), &m_superPlug, SLOT(justAPlug(QString)));
         connect(&m_radio1, SIGNAL(backendRoutineFinished(QString)), &m_superPlug, SLOT(justAPlug(QString)));
         connect(&m_radio2, SIGNAL(sendError(QString)), &m_superPlug, SLOT(justAPlug(QString)));
-        connect(&m_radio2, &Radio2::confirmReading, this, &IOTF::process);
+//        connect(&m_radio2, &Radio2::confirmReading, this, &IOTF::process);
 //        connect(&m_radio2, SIGNAL(confirmReading()), this, SLOT(process()));
 
         connect(&m_actuator, SIGNAL(tokenWritten()), this, SLOT(on_tokenWritten()));
+
+        connect(this, SIGNAL(sensorReadFinished(QString)), &m_superPlug, SLOT(justAPlug(QString)));
+        connect(this, SIGNAL(r2ReadFinished(QString)), &m_superPlug, SLOT(justAPlug(QString)));
+        connect(&m_sensor, SIGNAL(gotNewToken()), this, SLOT(on_sensorGotToken()));
+        connect(&m_radio2, SIGNAL(confirmReading()), this, SLOT(on_r2ConfirmReading()));
 
 
 
@@ -144,19 +171,17 @@ public:
 
     };
     ~IOTF(){};
-    void afterInit()
-    {
 
-    }
 
     void stateEntered()
     {
+        qInfo() << m_selfName;
         qInfo() << sender() << "Entered";
         if (sender()->objectName() == "m_startingInitialization")
         {
             emit initComplete(QString("init complete"));
 //            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            afterInit();
+
         }
         if (sender()->objectName() == "m_afterInit")
         {
@@ -173,6 +198,15 @@ public:
          {
              sync();
          }
+        if (sender()->objectName() == "m_processSensorData")
+         {
+             propagate();
+         }
+        if (sender()->objectName() == "m_processR2Data")
+         {
+             process();
+         }
+
 
 
     }
@@ -236,9 +270,15 @@ public:
         connect(&m_talkingToBackend, &QState::entered, this, &IOTF::stateEntered);
         connect(&m_talkingToBackend, &QState::exited, this, &IOTF::stateExited);
         connect(&m_talkingToBackend, &QState::finished, this, &IOTF::stateFinished);
-        connect(&m_workingWithSensor, &QState::entered, this, &IOTF::stateEntered);
-        connect(&m_workingWithSensor, &QState::exited, this, &IOTF::stateExited);
-        connect(&m_workingWithSensor, &QState::finished, this, &IOTF::stateFinished);
+        connect(&m_awaitingInput, &QState::entered, this, &IOTF::stateEntered);
+        connect(&m_awaitingInput, &QState::exited, this, &IOTF::stateExited);
+        connect(&m_awaitingInput, &QState::finished, this, &IOTF::stateFinished);
+        connect(&m_processR2Data, &QState::entered, this, &IOTF::stateEntered);
+        connect(&m_processR2Data, &QState::exited, this, &IOTF::stateExited);
+        connect(&m_processR2Data, &QState::finished, this, &IOTF::stateFinished);
+        connect(&m_processSensorData, &QState::entered, this, &IOTF::stateEntered);
+        connect(&m_processSensorData, &QState::exited, this, &IOTF::stateExited);
+        connect(&m_processSensorData, &QState::finished, this, &IOTF::stateFinished);
 //        connect(&m_errorState, &QState::entered, this, &IOTF::stateEntered);
 //        connect(&m_errorState, &QState::exited, this, &IOTF::stateExited);
 //        connect(&m_errorState, &QState::finished, this, &IOTF::stateFinished);
@@ -253,7 +293,11 @@ public:
     void propagate()
     {
 //        qInfo() << "attempt to read sensor\n";
+
+
+
         m_radio2.propagate(m_sensor.read());
+        emit sensorReadFinished("sensor read finished");
 
     }
     void process()
@@ -262,6 +306,7 @@ public:
         TokenT token;
         m_radio2.process(&token);
         m_actuator.write(token);
+        emit  r2ReadFinished("r2 read finished");
     }
 
     //очень странно что по схеме они паблик, но да ладно
@@ -284,7 +329,9 @@ private:
     QState m_afterInit;
     QState m_awaitingButton;
     QState m_talkingToBackend;
-    QState m_workingWithSensor;
+    QState m_awaitingInput;
+    QState m_processSensorData;
+    QState m_processR2Data;
     QFinalState m_errorState;
     SensorF<TokenT> m_sensor;
     ActuatorF<TokenT> m_actuator;
