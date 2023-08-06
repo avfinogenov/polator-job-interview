@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <iostream>
+#include <QDebug>
 
 
 class Actuator : public QObject
@@ -15,6 +16,8 @@ public:
 
     }
 
+signals:
+    void tokenWritten();
 
 };
 
@@ -31,7 +34,9 @@ public:
     ~ActuatorF(){};
     void write(TokenT token)
     {
-        std::cout << "token writen\n";
+        emit tokenWritten();
+//        qInfo() << "token writen\n";
+//        qInfo() <<
         m_output = token;
     }
 

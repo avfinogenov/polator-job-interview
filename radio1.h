@@ -2,6 +2,7 @@
 #define RADIO1_H
 
 #include <QObject>
+#include <QDebug>
 #include "structs.h"
 #include "backend.h"
 
@@ -41,6 +42,7 @@ public:
     {
         if (!m_isConnected)
         {
+//            qInfo() << m_backendConnectionParam;
              m_isConnected = m_backend->connect(m_backendConnectionParam);
         }
         else
@@ -58,6 +60,7 @@ public:
         }
         else
         {
+            qInfo() << "r1 error\n";
             //todo error
         }
     }

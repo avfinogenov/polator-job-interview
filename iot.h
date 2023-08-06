@@ -27,8 +27,8 @@ public:
 public slots:
     void justAPlug(QString s)
     {
-        qInfo() << "plug activated\n"    ;
-        qInfo() << s;
+//        qInfo() << "plug activated\n"    ;
+//        qInfo() << s;
 
     };
 };
@@ -40,12 +40,12 @@ class IOT : public QObject
 
 public:
 
-    explicit IOT(QObject *parent = nullptr): QObject(parent)
+    explicit IOT(QString inputName, QObject *parent = nullptr): QObject(parent)
     {
-
+        m_selfName = inputName;
     };
 
-
+    QString m_selfName;
 
 signals:
     void initComplete(QString s);
@@ -59,12 +59,17 @@ public slots:
     {
 
         qInfo() << "got button signal\n";
-
+         qInfo() << m_selfName;
         emit buttonSendInstantiate("button send instantiate");
     }
 
 
+    void on_tokenWritten()
+    {
+        qDebug() << m_selfName;
+        qDebug() << "token written";
 
+    }
 
 
 private:
@@ -83,9 +88,9 @@ class IOTF : public IOT
 public:
     explicit IOTF(Radio2ChannelF<R2ConnectionParamsT, TokenT>* channel,
                  R2ConnectionParamsT myR2Info, BackendT backendConnectionParams,
-                 BackendF<BackendT, R2ConnectionParamsT, GEOT>* backend): IOT(nullptr),
-                 m_radio1(backend, backendConnectionParams), m_superPlug(),
-                 m_radio2(channel, myR2Info), m_sensor(), m_actuator()
+                 BackendF<BackendT, R2ConnectionParamsT, GEOT>* backend, QString inputName):
+                 IOT(inputName, nullptr), m_radio1(backend, backendConnectionParams),
+                 m_superPlug(), m_radio2(channel, myR2Info), m_sensor(), m_actuator()
     {
 
 
@@ -129,7 +134,7 @@ public:
         connect(&m_radio2, &Radio2::confirmReading, this, &IOTF::process);
 //        connect(&m_radio2, SIGNAL(confirmReading()), this, SLOT(process()));
 
-
+        connect(&m_actuator, SIGNAL(tokenWritten()), this, SLOT(on_tokenWritten()));
 
 
 
@@ -174,13 +179,13 @@ public:
 
     void stateExited()
     {
-        qInfo() << sender() << "Exited";
+//        qInfo() << sender() << "Exited";
 
     }
 
     void stateFinished()
     {
-        qInfo() << sender() << "Finished";
+//        qInfo() << sender() << "Finished";
 
     }
     void lastAction()
@@ -191,6 +196,20 @@ public:
     {
         m_radio1.connect();
 
+        int counter = 0;
+        while(!m_radio1.getConnectionStatus())
+        {
+            if (counter > 100)
+            {
+                qInfo() << "r1 error\n";
+                emit radio1Error(QString("radio 1 error\n"));
+                return;
+            }
+
+            m_radio1.connect();
+            counter++;
+        }
+
         if (m_radio1.getConnectionStatus())
         {
             m_radio2.updateNeighbours(m_radio1.exchange(m_geo));
@@ -199,7 +218,7 @@ public:
         }
         else
         {
-            emit radio1Error(QString("radio 1 error\n"));
+
         }
 
     }

@@ -64,7 +64,7 @@ private:
             m_token = TokenT(rand() % 100);
 
 //            qInfo() << "sensor got token\n";
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            std::this_thread::sleep_for(std::chrono::milliseconds(2500));
             emit gotNewToken();
         }
 
