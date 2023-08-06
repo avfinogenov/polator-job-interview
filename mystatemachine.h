@@ -1,6 +1,6 @@
 #ifndef MYSTATEMACHINE_H
 #define MYSTATEMACHINE_H
-
+// на этом классе разбирал стейт машину, в проекте используется в основном для копирования
 #include <QObject>
 #include <QDebug>
 #include <QCoreApplication>
@@ -18,19 +18,9 @@ public:
     QStateMachine m_statemachine;
     QList<QAbstractState*> m_states;
     void addState(QState *state);
-
-
-
     void stateEntered();
-
-
     void stateExited();
-
     void stateFinished();
-
-
-
-
     explicit MyStateMachine(QObject *parent = nullptr) : QObject(parent) {
         // Создаем конечный автомат
         for (int i = 0; i < 10; ++i)
@@ -52,7 +42,6 @@ public:
 
         m_statemachine.start();
     }
-
 
 
 signals:

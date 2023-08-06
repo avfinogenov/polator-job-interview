@@ -11,10 +11,7 @@ class Radio1 : public QObject
     Q_OBJECT
 public:
 
-    explicit Radio1(QObject *parent = nullptr) : QObject(parent)
-    {
-
-    };
+    explicit Radio1(QObject *parent = nullptr) : QObject(parent){};
 
 signals:
     void backendRoutineFinished(QString s);
@@ -81,13 +78,6 @@ public:
     {
         return m_isConnected;
     }
-    //signals:
-
-
-
-
-
-
 
 private:
     BackendT m_backendConnectionParam = BackendT();

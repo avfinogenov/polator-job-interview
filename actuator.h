@@ -11,10 +11,7 @@ class Actuator : public QObject
     Q_OBJECT
 
 public:
-    explicit Actuator(QObject *parent = nullptr) : QObject(parent)
-    {
-
-    }
+    explicit Actuator(QObject *parent = nullptr) : QObject(parent){}
 
 signals:
     void tokenWritten();
@@ -27,21 +24,13 @@ class ActuatorF : public Actuator
 {
 
 public:
-    explicit ActuatorF()
-    {
-
-    }
+    explicit ActuatorF(){}
     ~ActuatorF(){};
     void write(TokenT token)
     {
         emit tokenWritten();
-//        qInfo() << "token writen\n";
-//        qInfo() <<
         m_output = token;
     }
-
-
-
 
 private:
     TokenT m_output = TokenT();

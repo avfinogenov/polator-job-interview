@@ -4,10 +4,7 @@
 #include <QObject>
 #include <vector>
 #include <QDebug>
-// нужна функция генерации коннекшн парамсов
-// нужна функция получения коннекшн парамсов
-// возможно QObject тут не нужен
-// хотя можно кидать сигнал, и ловить его стейт машиной
+// бек для симуляции и тестирования
 
 class Backend : public QObject
 {
@@ -50,9 +47,6 @@ public:
     // коннект и дисконнект возвращают статус соединения
     bool connect(BackendT backendConnectionParams)
     {
-//        qInfo() << m_isConnected;
-//        qInfo() << backendConnectionParams;
-//        qInfo() << m_backendConnectionParam;
 
         // вообще обычно такое принято писать понятнее, но так как внутри класса решил написать покороче
         return (m_isConnected = !m_isConnected && backendConnectionParams == m_backendConnectionParam);
@@ -62,9 +56,6 @@ public:
         return (m_isConnected = !m_isConnected);
     }
 
-
-
-//signals:
 
 
 

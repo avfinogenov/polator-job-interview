@@ -6,9 +6,6 @@
 #include "structs.h"
 /* for testing
  *
- *
- *
- *
  */
 
 class Radio2Channel : public QObject
@@ -17,10 +14,7 @@ Q_OBJECT
 
 public:
 
-    explicit Radio2Channel(QObject *parent = nullptr) : QObject(parent)
-    {
-
-    }
+    explicit Radio2Channel(QObject *parent = nullptr) : QObject(parent){ }
 
 
 signals:
@@ -34,13 +28,9 @@ class Radio2ChannelF : public Radio2Channel
 {
 
 public:
-    explicit Radio2ChannelF()
-    {
-
-    }
+    explicit Radio2ChannelF(){}
     void sendToChannel(ConnectionParams<ConnectionParamsT, TokenT> inputMsg)
     {
-//        qInfo() << "channel got new data";
         m_msgs.push_back(inputMsg);
         emit gotNewInfo();
     }
@@ -53,9 +43,6 @@ public:
     {
         m_msgs.pop_front();
     }
-
-    //signals:
-
 
 
 

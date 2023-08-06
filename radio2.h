@@ -10,10 +10,7 @@ class Radio2 : public QObject
 {
     Q_OBJECT
 public:
-    explicit Radio2(QObject *parent = nullptr) : QObject(parent)
-    {
-
-    };
+    explicit Radio2(QObject *parent = nullptr) : QObject(parent){};
 
 signals:
     void sendError(QString s);
@@ -22,13 +19,7 @@ signals:
 
 
 
-//public slots:
-//    void plug()
-//    {
-
-//    };
 };
-
 
 template <typename TokenT, typename ConnectionParamsT>
 class Radio2F : public Radio2
@@ -38,16 +29,11 @@ public:
     explicit Radio2F(Radio2ChannelF<ConnectionParamsT, TokenT>* channel, ConnectionParamsT myR2Info)
     {
 
-//        qInfo() << "constructor my connection info";
-
         m_myR2Info = myR2Info;
-//        qInfo() << m_myR2Info;
+
         m_channel = channel;
          connect(m_channel, &Radio2Channel::gotNewInfo, this, &Radio2F::read);
-//         connect(this, &Radio2F::confirmReading, this, &Radio2F::read);
-//        connect(channel, SIGNAL(gotNewInfo()), this, SLOT(read()));
-//        m_isWorking = true;
-//        m_thread = std::async(std::launch::async, &Radio2F::thread, this);
+
     };
     ~Radio2F(){};
     void process(TokenT* token)
@@ -69,8 +55,6 @@ public:
         {
 
             msgToSend.connectionData = m_neighbours[i];
-//            qInfo() << "propagate connection data";
-//            qInfo() << msgToSend.connectionData;
             m_channel->sendToChannel(msgToSend);
         }
 
@@ -90,8 +74,6 @@ public:
 
         ConnectionParams<ConnectionParamsT, TokenT> msgToRead;
         msgToRead = m_channel->readFromChannel();
-//        qInfo() << msgToRead.connectionData;
-//        qInfo() << m_myR2Info;
 
         if (msgToRead.connectionData == m_myR2Info)
         {
@@ -101,11 +83,8 @@ public:
 
 
     }
-    //signals:
-
 
 private:
-//    std::future<void> m_thread;
 
     bool m_isWorking = false;
     ConnectionParamsT m_myR2Info = ConnectionParamsT();
